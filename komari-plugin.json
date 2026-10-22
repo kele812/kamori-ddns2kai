@@ -1,0 +1,95 @@
+{
+  "$schema": "./node_modules/@komari-monitor/plugin-sdk/schema/komari-plugin.schema.json",
+  "name": {
+    "zh_CN": "Komari DDNS",
+    "en": "Komari DDNS"
+  },
+  "short": "cf-ddns",
+  "description": {
+    "zh_CN": "根据 Komari 节点上报的公网 IP，自动更新 Cloudflare DNS 解析记录，实现动态域名解析。",
+    "en": "Automatically update Cloudflare DNS records from the public IP reported by a Komari node, providing dynamic DNS."
+  },
+  "author": "穿云箭",
+  "version": "0.1.9",
+  "komari": ">=1.4.0",
+  "entry": "script.js",
+  "permissions": {
+    "node": true,
+    "allowSystemRPC": true,
+    "allowRoutes": true,
+    "maxHTTPBodyBytes": 65536,
+    "timeout": 30
+  },
+  "configuration": {
+    "type": "managed",
+    "data": [
+      {
+        "key": "api_token",
+        "name": { "zh_CN": "Cloudflare API Token", "en": "Cloudflare API Token" },
+        "type": "string",
+        "required": true,
+        "help": {
+          "zh_CN": "需具备 Zone:DNS:Edit 权限的全局 Cloudflare API Token，所有记录共用该 Token",
+          "en": "Global Cloudflare API Token with Zone:DNS:Edit permission, shared by all records."
+        }
+      },
+      {
+        "key": "interval",
+        "name": { "zh_CN": "检查间隔 (分钟)", "en": "Check Interval (minutes)" },
+        "type": "number",
+        "default": 5,
+        "required": true
+      },
+      {
+        "key": "notify",
+        "name": { "zh_CN": "更新时发送通知", "en": "Notify on update" },
+        "type": "switch",
+        "default": false
+      },
+      {
+        "key": "telegram_commands_enabled",
+        "name": { "zh_CN": "启用 Telegram 命令轮询（仅限独立机器人）", "en": "Enable Telegram command polling (dedicated bot only)" },
+        "type": "switch",
+        "default": false,
+        "required": true,
+        "help": {
+          "zh_CN": "启用后 DDNS 会独立读取该 Bot 的消息。不要与其他插件共用同一个 Bot Token，否则可能抢走其他插件的命令。",
+          "en": "When enabled, DDNS polls updates for this bot. Do not share the bot token with other plugins or their commands may be consumed."
+        }
+      },
+      {
+        "key": "telegram_bot_token",
+        "name": { "zh_CN": "Telegram Bot Token", "en": "Telegram Bot Token" },
+        "type": "string",
+        "required": false,
+        "help": {
+          "zh_CN": "从 @BotFather 获取。需要先开启上方命令轮询开关；仅给 DDNS 独立使用的机器人填写。",
+          "en": "Get this from @BotFather. Enable command polling above. Use a dedicated bot token for DDNS."
+        }
+      },
+      {
+        "key": "telegram_chat_ids",
+        "name": { "zh_CN": "Telegram 授权用户 ID", "en": "Telegram allowed user IDs" },
+        "type": "string",
+        "required": false,
+        "help": {
+          "zh_CN": "填写允许下发更新指令的 Telegram 个人用户 ID，多个 ID 用英文逗号分隔。更新成功时也会通知这些 ID。",
+          "en": "Comma-separated Telegram personal user IDs allowed to trigger updates. These IDs also receive success notifications."
+        }
+      },
+      {
+        "key": "telegram_notify",
+        "name": { "zh_CN": "通过 Telegram 通知更新成功", "en": "Send Telegram success notifications" },
+        "type": "switch",
+        "default": true
+      }
+    ]
+  },
+  "pages": [
+    {
+      "file": "admin.html",
+      "title": { "zh_CN": "DDNS 状态", "en": "DDNS Status" },
+      "visibility": "admin"
+    }
+  ]
+}
